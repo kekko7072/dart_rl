@@ -1,8 +1,7 @@
-<p align="center">
-  <img src="dart-rl-logo.png" alt="Dart RL Logo" width="200"/>
-</p>
-
-# DartRL
+<div align="center">
+  <img src="https://raw.githubusercontent.com/kekko7072/dart_rl/main/dart-rl-logo.png" alt="DartRL Logo" width="200"/>
+  <h1>DartRL</h1>
+</div>
 
 A simple Dart package implementing reinforcement learning algorithms (Q-Learning, SARSA, Expected-SARSA).
 
