@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:dart_rl/dart_rl.dart';
 
 /// Frozen Lake environment (simplified version)
-/// 
+///
 /// A grid world where:
 /// - 'S' = Start (safe)
 /// - 'F' = Frozen (safe)
@@ -11,7 +11,7 @@ import 'package:dart_rl/dart_rl.dart';
 /// - 'G' = Goal (reward +10)
 class FrozenLake implements Environment {
   final List<List<String>> grid;
-  late State _currentState;
+  late DartRLState _currentState;
   final Random random = Random();
 
   FrozenLake({
@@ -29,11 +29,11 @@ class FrozenLake implements Environment {
     ];
   }
 
-  State _createState(int row, int col) => State(Point(row, col));
+  DartRLState _createState(int row, int col) => DartRLState(Point(row, col));
 
-  Point<int> _getStateValue(State state) => state.value as Point<int>;
+  Point<int> _getStateValue(DartRLState state) => state.value as Point<int>;
 
-  State _findStartState() {
+  DartRLState _findStartState() {
     for (int i = 0; i < grid.length; i++) {
       for (int j = 0; j < grid[i].length; j++) {
         if (grid[i][j] == 'S') {
@@ -45,30 +45,30 @@ class FrozenLake implements Environment {
   }
 
   @override
-  State reset() {
+  DartRLState reset() {
     _currentState = _findStartState();
     return _currentState;
   }
 
   @override
-  State get currentState => _currentState;
+  DartRLState get currentState => _currentState;
 
   @override
-  List<Action> get availableActions => getActionsForState(_currentState);
+  List<DartRLAction> get availableActions => getActionsForState(_currentState);
 
   @override
-  List<Action> getActionsForState(State state) {
+  List<DartRLAction> getActionsForState(DartRLState state) {
     return [
-      Action('up'),
-      Action('down'),
-      Action('left'),
-      Action('right'),
+      DartRLAction('up'),
+      DartRLAction('down'),
+      DartRLAction('left'),
+      DartRLAction('right'),
     ];
   }
 
   @override
-  List<State> get allStates {
-    final states = <State>[];
+  List<DartRLState> get allStates {
+    final states = <DartRLState>[];
     for (int i = 0; i < grid.length; i++) {
       for (int j = 0; j < grid[i].length; j++) {
         states.add(_createState(i, j));
@@ -78,11 +78,11 @@ class FrozenLake implements Environment {
   }
 
   @override
-  List<Action> get allActions => [
-        Action('up'),
-        Action('down'),
-        Action('left'),
-        Action('right'),
+  List<DartRLAction> get allActions => [
+        DartRLAction('up'),
+        DartRLAction('down'),
+        DartRLAction('left'),
+        DartRLAction('right'),
       ];
 
   String _getCell(int row, int col) {
@@ -93,7 +93,7 @@ class FrozenLake implements Environment {
   }
 
   @override
-  StepResult step(Action action) {
+  StepResult step(DartRLAction action) {
     final pos = _getStateValue(_currentState);
     final actionStr = action.value as String;
 
@@ -142,7 +142,7 @@ class FrozenLake implements Environment {
   bool get isTerminal => isStateTerminal(_currentState);
 
   @override
-  bool isStateTerminal(State state) {
+  bool isStateTerminal(DartRLState state) {
     final pos = _getStateValue(state);
     final cell = _getCell(pos.x, pos.y);
     return cell == 'H' || cell == 'G';

@@ -24,7 +24,7 @@ abstract class Agent {
   });
 
   /// Select an action using epsilon-greedy policy
-  Action selectAction(Environment environment, State state) {
+  DartRLAction selectAction(Environment environment, DartRLState state) {
     final availableActions = environment.getActionsForState(state);
 
     if (availableActions.isEmpty) {
@@ -42,7 +42,8 @@ abstract class Agent {
   }
 
   /// Select the best action according to Q-values
-  Action _selectBestAction(State state, List<Action> availableActions) {
+  DartRLAction _selectBestAction(
+      DartRLState state, List<DartRLAction> availableActions) {
     if (availableActions.isEmpty) {
       throw ArgumentError('No available actions');
     }
@@ -66,13 +67,13 @@ abstract class Agent {
   }
 
   /// Get the Q-value for a state-action pair
-  double getQValue(State state, Action action);
+  double getQValue(DartRLState state, DartRLAction action);
 
   /// Update the Q-value for a state-action pair
-  void updateQValue(State state, Action action, double value);
+  void updateQValue(DartRLState state, DartRLAction action, double value);
 
   /// Get all Q-values for a given state
-  Map<Action, double> getQValuesForState(State state);
+  Map<DartRLAction, double> getQValuesForState(DartRLState state);
 
   /// Decay epsilon (for epsilon-greedy exploration)
   void decayEpsilon(double decayRate) {
@@ -87,8 +88,8 @@ abstract class Agent {
 
 /// Helper class for Q-value comparisons
 class QValue {
-  final State state;
-  final Action action;
+  final DartRLState state;
+  final DartRLAction action;
   final double value;
 
   QValue(this.state, this.action, this.value);

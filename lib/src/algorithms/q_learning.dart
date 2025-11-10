@@ -4,12 +4,12 @@ import '../environment.dart';
 import '../state_action.dart';
 
 /// Q-Learning algorithm implementation
-/// 
+///
 /// Q-Learning is an off-policy temporal difference learning algorithm.
 /// It learns the optimal action-value function Q* regardless of the policy being followed.
 class QLearningAgent extends Agent {
   /// Q-table: maps state-action pairs to Q-values
-  final Map<StateAction, double> _qTable = {};
+  final Map<DartRLStateAction, double> _qTable = {};
 
   /// Default Q-value for unseen state-action pairs
   final double defaultQValue;
@@ -22,20 +22,20 @@ class QLearningAgent extends Agent {
   });
 
   @override
-  double getQValue(State state, Action action) {
-    final key = StateAction(state, action);
+  double getQValue(DartRLState state, DartRLAction action) {
+    final key = DartRLStateAction(state, action);
     return _qTable[key] ?? defaultQValue;
   }
 
   @override
-  void updateQValue(State state, Action action, double value) {
-    final key = StateAction(state, action);
+  void updateQValue(DartRLState state, DartRLAction action, double value) {
+    final key = DartRLStateAction(state, action);
     _qTable[key] = value;
   }
 
   @override
-  Map<Action, double> getQValuesForState(State state) {
-    final qValues = <Action, double>{};
+  Map<DartRLAction, double> getQValuesForState(DartRLState state) {
+    final qValues = <DartRLAction, double>{};
     for (final entry in _qTable.entries) {
       if (entry.key.state == state) {
         qValues[entry.key.action] = entry.value;
@@ -45,14 +45,14 @@ class QLearningAgent extends Agent {
   }
 
   /// Update Q-value using Q-Learning update rule
-  /// 
+  ///
   /// Q(s,a) = Q(s,a) + ?[r + ? * max(Q(s',a')) - Q(s,a)]
   void update(
-    State state,
-    Action action,
+    DartRLState state,
+    DartRLAction action,
     double reward,
-    State nextState,
-    List<Action> nextStateActions,
+    DartRLState nextState,
+    List<DartRLAction> nextStateActions,
   ) {
     final currentQ = getQValue(state, action);
 
@@ -73,17 +73,18 @@ class QLearningAgent extends Agent {
 
   /// Train the agent for one episode
   void trainEpisode(Environment environment) {
-    State state = environment.reset();
+    DartRLState state = environment.reset();
 
     while (!environment.isTerminal) {
       // Select action using epsilon-greedy policy
-      final action = selectAction(environment, state);
+      final action = selectAction(environment, DartRLState(state));
 
       // Take step in environment
       final stepResult = environment.step(action);
 
       // Get available actions for next state
-      final nextStateActions = environment.getActionsForState(stepResult.nextState);
+      final nextStateActions =
+          environment.getActionsForState(stepResult.nextState);
 
       // Update Q-value using Q-Learning
       update(
@@ -110,7 +111,7 @@ class QLearningAgent extends Agent {
   }
 
   /// Get a copy of the Q-table
-  Map<StateAction, double> get qTable => UnmodifiableMapView(_qTable);
+  Map<DartRLStateAction, double> get qTable => UnmodifiableMapView(_qTable);
 
   /// Get the number of state-action pairs in the Q-table
   int get qTableSize => _qTable.length;

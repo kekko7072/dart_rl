@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
 
 /// Represents a state in the environment
-class State extends Equatable {
+class DartRLState extends Equatable {
   final dynamic value;
 
-  const State(this.value);
+  const DartRLState(this.value);
 
   @override
   List<Object?> get props => [value];
@@ -14,10 +14,10 @@ class State extends Equatable {
 }
 
 /// Represents an action that can be taken in the environment
-class Action extends Equatable {
+class DartRLAction extends Equatable {
   final dynamic value;
 
-  const Action(this.value);
+  const DartRLAction(this.value);
 
   @override
   List<Object?> get props => [value];
@@ -27,11 +27,11 @@ class Action extends Equatable {
 }
 
 /// Represents a state-action pair
-class StateAction extends Equatable {
-  final State state;
-  final Action action;
+class DartRLStateAction extends Equatable {
+  final DartRLState state;
+  final DartRLAction action;
 
-  const StateAction(this.state, this.action);
+  const DartRLStateAction(this.state, this.action);
 
   @override
   List<Object?> get props => [state, action];

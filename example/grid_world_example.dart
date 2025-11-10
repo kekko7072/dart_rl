@@ -2,14 +2,14 @@ import 'dart:math';
 import 'package:dart_rl/dart_rl.dart';
 
 /// Simple Grid World environment for testing RL algorithms
-/// 
+///
 /// This is a 4x4 grid where:
 /// - Agent starts at (0,0)
 /// - Goal is at (3,3) with reward +10
 /// - Each step has reward -1
 /// - Episode ends when reaching goal
 class GridWorld implements Environment {
-  late State _currentState;
+  late DartRLState _currentState;
   final int gridSize;
   final Point<int> goal;
   final Random random = Random();
@@ -21,38 +21,38 @@ class GridWorld implements Environment {
     _currentState = _createState(0, 0);
   }
 
-  State _createState(int x, int y) => State(Point(x, y));
+  DartRLState _createState(int x, int y) => DartRLState(Point(x, y));
 
-  Point<int> _getStateValue(State state) => state.value as Point<int>;
+  Point<int> _getStateValue(DartRLState state) => state.value as Point<int>;
 
   @override
-  State reset() {
+  DartRLState reset() {
     _currentState = _createState(0, 0);
     return _currentState;
   }
 
   @override
-  State get currentState => _currentState;
+  DartRLState get currentState => _currentState;
 
   @override
-  List<Action> get availableActions => getActionsForState(_currentState);
+  List<DartRLAction> get availableActions => getActionsForState(_currentState);
 
   @override
-  List<Action> getActionsForState(State state) {
+  List<DartRLAction> getActionsForState(DartRLState state) {
     final pos = _getStateValue(state);
-    final actions = <Action>[];
+    final actions = <DartRLAction>[];
 
-    if (pos.x > 0) actions.add(Action('up'));
-    if (pos.x < gridSize - 1) actions.add(Action('down'));
-    if (pos.y > 0) actions.add(Action('left'));
-    if (pos.y < gridSize - 1) actions.add(Action('right'));
+    if (pos.x > 0) actions.add(DartRLAction('up'));
+    if (pos.x < gridSize - 1) actions.add(DartRLAction('down'));
+    if (pos.y > 0) actions.add(DartRLAction('left'));
+    if (pos.y < gridSize - 1) actions.add(DartRLAction('right'));
 
     return actions;
   }
 
   @override
-  List<State> get allStates {
-    final states = <State>[];
+  List<DartRLState> get allStates {
+    final states = <DartRLState>[];
     for (int x = 0; x < gridSize; x++) {
       for (int y = 0; y < gridSize; y++) {
         states.add(_createState(x, y));
@@ -62,15 +62,15 @@ class GridWorld implements Environment {
   }
 
   @override
-  List<Action> get allActions => [
-        Action('up'),
-        Action('down'),
-        Action('left'),
-        Action('right'),
+  List<DartRLAction> get allActions => [
+        DartRLAction('up'),
+        DartRLAction('down'),
+        DartRLAction('left'),
+        DartRLAction('right'),
       ];
 
   @override
-  StepResult step(Action action) {
+  StepResult step(DartRLAction action) {
     final pos = _getStateValue(_currentState);
     final actionStr = action.value as String;
 
@@ -116,7 +116,7 @@ class GridWorld implements Environment {
   bool get isTerminal => isStateTerminal(_currentState);
 
   @override
-  bool isStateTerminal(State state) {
+  bool isStateTerminal(DartRLState state) {
     final pos = _getStateValue(state);
     return pos.x == goal.x && pos.y == goal.y;
   }
@@ -139,9 +139,9 @@ void qLearningExample() {
   print('\nQ-Table size: ${agent.qTableSize}');
   print('\nSample Q-values:');
   final sampleStates = [
-    State(Point(0, 0)),
-    State(Point(1, 1)),
-    State(Point(2, 2)),
+    DartRLState(Point(0, 0)),
+    DartRLState(Point(1, 1)),
+    DartRLState(Point(2, 2)),
   ];
 
   for (final state in sampleStates) {
@@ -184,9 +184,9 @@ void sarsaExample() {
   print('\nQ-Table size: ${agent.qTableSize}');
   print('\nSample Q-values:');
   final sampleStates = [
-    State(Point(0, 0)),
-    State(Point(1, 1)),
-    State(Point(2, 2)),
+    DartRLState(Point(0, 0)),
+    DartRLState(Point(1, 1)),
+    DartRLState(Point(2, 2)),
   ];
 
   for (final state in sampleStates) {
@@ -229,9 +229,9 @@ void expectedSarsaExample() {
   print('\nQ-Table size: ${agent.qTableSize}');
   print('\nSample Q-values:');
   final sampleStates = [
-    State(Point(0, 0)),
-    State(Point(1, 1)),
-    State(Point(2, 2)),
+    DartRLState(Point(0, 0)),
+    DartRLState(Point(1, 1)),
+    DartRLState(Point(2, 2)),
   ];
 
   for (final state in sampleStates) {
@@ -264,7 +264,8 @@ void compareAlgorithmsExample() {
   final episodes = 500;
   final runs = 5;
 
-  print('Comparing algorithms over $runs runs with $episodes episodes each...\n');
+  print(
+      'Comparing algorithms over $runs runs with $episodes episodes each...\n');
 
   // Q-Learning
   double qLearningAvgSteps = 0;

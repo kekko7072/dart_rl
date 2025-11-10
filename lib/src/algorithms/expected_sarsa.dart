@@ -4,13 +4,13 @@ import '../environment.dart';
 import '../state_action.dart';
 
 /// Expected-SARSA algorithm implementation
-/// 
+///
 /// Expected-SARSA is an on-policy temporal difference learning algorithm.
 /// Instead of using the Q-value of the next action (like SARSA), it uses
 /// the expected value of Q over all possible next actions according to the policy.
 class ExpectedSarsaAgent extends Agent {
   /// Q-table: maps state-action pairs to Q-values
-  final Map<StateAction, double> _qTable = {};
+  final Map<DartRLStateAction, double> _qTable = {};
 
   /// Default Q-value for unseen state-action pairs
   final double defaultQValue;
@@ -23,20 +23,20 @@ class ExpectedSarsaAgent extends Agent {
   });
 
   @override
-  double getQValue(State state, Action action) {
-    final key = StateAction(state, action);
+  double getQValue(DartRLState state, DartRLAction action) {
+    final key = DartRLStateAction(state, action);
     return _qTable[key] ?? defaultQValue;
   }
 
   @override
-  void updateQValue(State state, Action action, double value) {
-    final key = StateAction(state, action);
+  void updateQValue(DartRLState state, DartRLAction action, double value) {
+    final key = DartRLStateAction(state, action);
     _qTable[key] = value;
   }
 
   @override
-  Map<Action, double> getQValuesForState(State state) {
-    final qValues = <Action, double>{};
+  Map<DartRLAction, double> getQValuesForState(DartRLState state) {
+    final qValues = <DartRLAction, double>{};
     for (final entry in _qTable.entries) {
       if (entry.key.state == state) {
         qValues[entry.key.action] = entry.value;
@@ -46,13 +46,15 @@ class ExpectedSarsaAgent extends Agent {
   }
 
   /// Calculate the expected Q-value for the next state under the current policy
-  double _calculateExpectedQValue(State nextState, List<Action> availableActions) {
+  double _calculateExpectedQValue(
+      DartRLState nextState, List<DartRLAction> availableActions) {
     if (availableActions.isEmpty) {
       return 0.0;
     }
 
     // Get Q-values for all available actions
-    final qValues = availableActions.map((action) => getQValue(nextState, action)).toList();
+    final qValues =
+        availableActions.map((action) => getQValue(nextState, action)).toList();
     final maxQValue = qValues.reduce((a, b) => a > b ? a : b);
 
     // Calculate probabilities for each action using epsilon-greedy policy
@@ -72,14 +74,14 @@ class ExpectedSarsaAgent extends Agent {
   }
 
   /// Update Q-value using Expected-SARSA update rule
-  /// 
+  ///
   /// Q(s,a) = Q(s,a) + ?[r + ? * E[Q(s',a')] - Q(s,a)]
   void update(
-    State state,
-    Action action,
+    DartRLState state,
+    DartRLAction action,
     double reward,
-    State nextState,
-    List<Action> nextStateActions,
+    DartRLState nextState,
+    List<DartRLAction> nextStateActions,
   ) {
     final currentQ = getQValue(state, action);
 
@@ -95,7 +97,7 @@ class ExpectedSarsaAgent extends Agent {
 
   /// Train the agent for one episode
   void trainEpisode(Environment environment) {
-    State state = environment.reset();
+    DartRLState state = environment.reset();
 
     while (!environment.isTerminal) {
       // Select action using epsilon-greedy policy
@@ -105,7 +107,8 @@ class ExpectedSarsaAgent extends Agent {
       final stepResult = environment.step(action);
 
       // Get available actions for next state
-      final nextStateActions = environment.getActionsForState(stepResult.nextState);
+      final nextStateActions =
+          environment.getActionsForState(stepResult.nextState);
 
       // Update Q-value using Expected-SARSA
       update(
@@ -132,7 +135,7 @@ class ExpectedSarsaAgent extends Agent {
   }
 
   /// Get a copy of the Q-table
-  Map<StateAction, double> get qTable => UnmodifiableMapView(_qTable);
+  Map<DartRLStateAction, double> get qTable => UnmodifiableMapView(_qTable);
 
   /// Get the number of state-action pairs in the Q-table
   int get qTableSize => _qTable.length;
