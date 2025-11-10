@@ -20,7 +20,7 @@ Add `dart_rl` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  dart_rl: ^0.2.0-alpha.1
+  dart_rl: ^0.2.0-alpha.3
 ```
 
 Then run:
@@ -173,14 +173,29 @@ print('Q-table size: ${qTable.length}');
 
 See the `example/` directory for complete Dart examples:
 
-- `grid_world_example.dart`: Simple grid world navigation
-- `frozen_lake_example.dart`: Frozen lake environment with hazards
+- `grid_world/`: Simple grid world navigation demonstrating Q-Learning, SARSA, and Expected-SARSA
+- `frozen_lake/`: Frozen lake environment with hazards using Expected-SARSA
+- `flutter_rl_demo/`: Flutter application demonstrating the package
 
 Run Dart examples:
 
 ```bash
-dart run example/grid_world_example.dart
-dart run example/frozen_lake_example.dart
+# Grid World example
+cd example/grid_world
+dart pub get
+dart run
+
+# Frozen Lake example
+cd example/frozen_lake
+dart pub get
+dart run
+```
+
+Or run from the root directory:
+
+```bash
+dart run example/grid_world/main.dart
+dart run example/frozen_lake/main.dart
 ```
 
 ## Algorithm Details
@@ -231,8 +246,3 @@ MIT
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Links
-
-- **Homepage**: https://github.com/kekko7072/dart_rl
-- **Version**: 0.2.0-alpha.1
