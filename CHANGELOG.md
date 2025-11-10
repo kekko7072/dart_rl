@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0-alpha-1] - 2025-11-10
+
+### Changed
+
+- **Major refactor**: Simplified package to focus on pure Dart implementation
+- Renamed `DartRLState` to `DartRlState` for consistent naming convention
+- Renamed `DartRLAction` to `DartRlAction` for consistent naming convention
+- Renamed `DartRLStateAction` to `DartRlStateAction` for consistent naming convention
+- Split state and action classes into separate files (`state.dart`, `action.dart`, `state_action.dart`)
+- Replaced Equatable-based equality with manual `operator ==` and `hashCode` implementations
+- Updated package description to emphasize simplicity
+- Simplified README with streamlined examples and documentation
+- Updated version to 0.2.0-alpha.1
+
+### Removed
+
+- **Flutter SDK dependency**: Package is now pure Dart
+- **Dependencies**: Removed `collection`, `equatable`, and `flutter` packages
+- **Dev dependencies**: Removed `pedantic` package
+- **Flutter integration**: Removed `AgentNotifier` and `trainStream` functionality
+- **Flutter directory**: Removed entire `lib/src/flutter/` directory
+- **Advanced features**: Removed `DecaySchedule`, `TrainingStats`, and `QTableSerializer` classes
+- **Flutter-specific files**: Removed `agent_notifier.dart`, `agent_stream.dart`
+- **Additional files**: Removed `decay_schedules.dart`, `serialization.dart`, `training_stats.dart`
+- **Flutter documentation**: Removed Flutter integration sections from README
+- **Flutter examples**: Removed `example/flutter_rl_demo/` directory
+
+### Notes
+
+This version represents a significant simplification of the package, focusing on core reinforcement learning algorithms for pure Dart applications. Flutter support and advanced features have been removed to reduce complexity and dependencies.
+
 ## [0.1.0-alpha.2] - 2025-11-10
 
 ### Added

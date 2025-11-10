@@ -1,4 +1,8 @@
-# dart_rl
+<p align="center">
+  <img src="dart-rl-logo.png" alt="Dart RL Logo" width="200"/>
+</p>
+
+# DartRL
 
 A simple Dart package implementing reinforcement learning algorithms (Q-Learning, SARSA, Expected-SARSA).
 
@@ -17,7 +21,7 @@ Add `dart_rl` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  dart_rl: ^0.2.0
+  dart_rl: ^0.2.0-alpha.1
 ```
 
 Then run:
@@ -58,28 +62,28 @@ To use `dart_rl` with your own environment, implement the `Environment` interfac
 
 ```dart
 class MyEnvironment implements Environment {
-  late State _currentState;
+  late DartRlState _currentState;
 
   @override
-  State reset() {
+  DartRlState reset() {
     // Reset to initial state
-    _currentState = State(initialValue);
+    _currentState = DartRlState(initialValue);
     return _currentState;
   }
 
   @override
-  State get currentState => _currentState;
+  DartRlState get currentState => _currentState;
 
   @override
-  List<Action> getActionsForState(State state) {
+  List<DartRlAction> getActionsForState(DartRlState state) {
     // Return available actions for the given state
-    return [Action('action1'), Action('action2')];
+    return [DartRlAction('action1'), DartRlAction('action2')];
   }
 
   @override
-  StepResult step(Action action) {
+  StepResult step(DartRlAction action) {
     // Execute action and return result
-    final nextState = State(newValue);
+    final nextState = DartRlState(newValue);
     _currentState = nextState;
     return StepResult(
       nextState: nextState,
@@ -150,10 +154,10 @@ agent.epsilon = 0.0;
 
 ```dart
 // Get Q-value for a specific state-action pair
-final qValue = agent.getQValue(State(stateValue), Action(actionValue));
+final qValue = agent.getQValue(DartRlState(stateValue), DartRlAction(actionValue));
 
 // Get all Q-values for a state
-final state = State(stateValue);
+final state = DartRlState(stateValue);
 final qValues = agent.getQValuesForState(state);
 for (final entry in qValues.entries) {
   print('${entry.key.value}: ${entry.value}');
@@ -207,14 +211,14 @@ dart run example/frozen_lake_example.dart
 
 ### Core Classes
 
-- **`Agent`**: Base class for all RL agents with epsilon-greedy exploration
+- **`DartRlAgent`**: Base class for all RL agents with epsilon-greedy exploration
 - **`QLearning`**: Off-policy Q-Learning implementation
 - **`SARSA`**: On-policy SARSA implementation
 - **`ExpectedSARSA`**: On-policy Expected-SARSA implementation
 - **`Environment`**: Interface for implementing custom RL environments
-- **`State`**: Represents a state in the environment
-- **`Action`**: Represents an action that can be taken
-- **`StateAction`**: Represents a state-action pair
+- **`DartRlState`**: Represents a state in the environment
+- **`DartRlAction`**: Represents an action that can be taken
+- **`DartRlStateAction`**: Represents a state-action pair
 - **`StepResult`**: Result of taking an action in the environment
 
 ## Requirements
@@ -232,4 +236,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Links
 
 - **Homepage**: https://github.com/kekko7072/dart_rl
-- **Version**: 0.2.0
+- **Version**: 0.2.0-alpha.1
