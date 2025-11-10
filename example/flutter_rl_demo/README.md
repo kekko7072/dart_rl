@@ -20,10 +20,36 @@ A Flutter application demonstrating real-time reinforcement learning training wi
    ```bash
    flutter pub get
    ```
-4. Run the app:
+4. Run the app on your preferred platform:
    ```bash
+   # Run on default device
    flutter run
+   
+   # Run on specific platform
+   flutter run -d chrome          # Web (Chrome)
+   flutter run -d edge             # Web (Edge)
+   flutter run -d macos            # macOS desktop
+   flutter run -d windows           # Windows desktop
+   flutter run -d linux            # Linux desktop
+   flutter run -d ios              # iOS (requires macOS)
+   flutter run -d android          # Android
    ```
+
+## Supported Platforms
+
+This Flutter demo supports all Flutter platforms:
+
+- ✅ **Android** - Mobile devices and emulators
+- ✅ **iOS** - iPhone and iPad (requires macOS)
+- ✅ **Web** - Chrome, Edge, Firefox, Safari
+- ✅ **Linux** - Desktop applications
+- ✅ **macOS** - Desktop applications
+- ✅ **Windows** - Desktop applications
+
+To see available devices, run:
+```bash
+flutter devices
+```
 
 ## How It Works
 

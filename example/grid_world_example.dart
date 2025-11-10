@@ -9,10 +9,9 @@ import 'package:dart_rl/dart_rl.dart';
 /// - Each step has reward -1
 /// - Episode ends when reaching goal
 class GridWorld implements Environment {
-  late DartRLState _currentState;
+  late DartRlState _currentState;
   final int gridSize;
   final Point<int> goal;
-  final Random random = Random();
 
   GridWorld({
     this.gridSize = 4,
@@ -21,56 +20,34 @@ class GridWorld implements Environment {
     _currentState = _createState(0, 0);
   }
 
-  DartRLState _createState(int x, int y) => DartRLState(Point(x, y));
+  DartRlState _createState(int x, int y) => DartRlState(Point(x, y));
 
-  Point<int> _getStateValue(DartRLState state) => state.value as Point<int>;
+  Point<int> _getStateValue(DartRlState state) => state.value as Point<int>;
 
   @override
-  DartRLState reset() {
+  DartRlState reset() {
     _currentState = _createState(0, 0);
     return _currentState;
   }
 
   @override
-  DartRLState get currentState => _currentState;
+  DartRlState get currentState => _currentState;
 
   @override
-  List<DartRLAction> get availableActions => getActionsForState(_currentState);
-
-  @override
-  List<DartRLAction> getActionsForState(DartRLState state) {
+  List<DartRlAction> getActionsForState(DartRlState state) {
     final pos = _getStateValue(state);
-    final actions = <DartRLAction>[];
+    final actions = <DartRlAction>[];
 
-    if (pos.x > 0) actions.add(DartRLAction('up'));
-    if (pos.x < gridSize - 1) actions.add(DartRLAction('down'));
-    if (pos.y > 0) actions.add(DartRLAction('left'));
-    if (pos.y < gridSize - 1) actions.add(DartRLAction('right'));
+    if (pos.x > 0) actions.add(DartRlAction('up'));
+    if (pos.x < gridSize - 1) actions.add(DartRlAction('down'));
+    if (pos.y > 0) actions.add(DartRlAction('left'));
+    if (pos.y < gridSize - 1) actions.add(DartRlAction('right'));
 
     return actions;
   }
 
   @override
-  List<DartRLState> get allStates {
-    final states = <DartRLState>[];
-    for (int x = 0; x < gridSize; x++) {
-      for (int y = 0; y < gridSize; y++) {
-        states.add(_createState(x, y));
-      }
-    }
-    return states;
-  }
-
-  @override
-  List<DartRLAction> get allActions => [
-        DartRLAction('up'),
-        DartRLAction('down'),
-        DartRLAction('left'),
-        DartRLAction('right'),
-      ];
-
-  @override
-  StepResult step(DartRLAction action) {
+  StepResult step(DartRlAction action) {
     final pos = _getStateValue(_currentState);
     final actionStr = action.value as String;
 
@@ -113,11 +90,8 @@ class GridWorld implements Environment {
   }
 
   @override
-  bool get isTerminal => isStateTerminal(_currentState);
-
-  @override
-  bool isStateTerminal(DartRLState state) {
-    final pos = _getStateValue(state);
+  bool get isTerminal {
+    final pos = _getStateValue(_currentState);
     return pos.x == goal.x && pos.y == goal.y;
   }
 }
@@ -127,7 +101,7 @@ void qLearningExample() {
   print('=== Q-Learning Example ===\n');
 
   final environment = GridWorld();
-  final agent = QLearningAgent(
+  final agent = QLearning(
     learningRate: 0.1,
     discountFactor: 0.9,
     epsilon: 0.1,
@@ -136,12 +110,12 @@ void qLearningExample() {
   print('Training Q-Learning agent for 1000 episodes...');
   agent.train(environment, 1000);
 
-  print('\nQ-Table size: ${agent.qTableSize}');
+  print('\nQ-Table size: ${agent.qTable.length}');
   print('\nSample Q-values:');
   final sampleStates = [
-    DartRLState(Point(0, 0)),
-    DartRLState(Point(1, 1)),
-    DartRLState(Point(2, 2)),
+    DartRlState(Point(0, 0)),
+    DartRlState(Point(1, 1)),
+    DartRlState(Point(2, 2)),
   ];
 
   for (final state in sampleStates) {
@@ -172,7 +146,7 @@ void sarsaExample() {
   print('=== SARSA Example ===\n');
 
   final environment = GridWorld();
-  final agent = SarsaAgent(
+  final agent = SARSA(
     learningRate: 0.1,
     discountFactor: 0.9,
     epsilon: 0.1,
@@ -181,12 +155,12 @@ void sarsaExample() {
   print('Training SARSA agent for 1000 episodes...');
   agent.train(environment, 1000);
 
-  print('\nQ-Table size: ${agent.qTableSize}');
+  print('\nQ-Table size: ${agent.qTable.length}');
   print('\nSample Q-values:');
   final sampleStates = [
-    DartRLState(Point(0, 0)),
-    DartRLState(Point(1, 1)),
-    DartRLState(Point(2, 2)),
+    DartRlState(Point(0, 0)),
+    DartRlState(Point(1, 1)),
+    DartRlState(Point(2, 2)),
   ];
 
   for (final state in sampleStates) {
@@ -217,7 +191,7 @@ void expectedSarsaExample() {
   print('=== Expected-SARSA Example ===\n');
 
   final environment = GridWorld();
-  final agent = ExpectedSarsaAgent(
+  final agent = ExpectedSARSA(
     learningRate: 0.1,
     discountFactor: 0.9,
     epsilon: 0.1,
@@ -226,12 +200,12 @@ void expectedSarsaExample() {
   print('Training Expected-SARSA agent for 1000 episodes...');
   agent.train(environment, 1000);
 
-  print('\nQ-Table size: ${agent.qTableSize}');
+  print('\nQ-Table size: ${agent.qTable.length}');
   print('\nSample Q-values:');
   final sampleStates = [
-    DartRLState(Point(0, 0)),
-    DartRLState(Point(1, 1)),
-    DartRLState(Point(2, 2)),
+    DartRlState(Point(0, 0)),
+    DartRlState(Point(1, 1)),
+    DartRlState(Point(2, 2)),
   ];
 
   for (final state in sampleStates) {
@@ -271,7 +245,7 @@ void compareAlgorithmsExample() {
   double qLearningAvgSteps = 0;
   for (int run = 0; run < runs; run++) {
     final env = GridWorld();
-    final agent = QLearningAgent(
+    final agent = QLearning(
       learningRate: 0.1,
       discountFactor: 0.9,
       epsilon: 0.1,
@@ -280,8 +254,8 @@ void compareAlgorithmsExample() {
 
     // Test
     env.reset();
+    agent.epsilon = 0.0; // Greedy policy
     int steps = 0;
-    agent.setEpsilon(0.0); // Greedy policy
     while (!env.isTerminal && steps < 50) {
       final action = agent.selectAction(env, env.currentState);
       final result = env.step(action);
@@ -296,7 +270,7 @@ void compareAlgorithmsExample() {
   double sarsaAvgSteps = 0;
   for (int run = 0; run < runs; run++) {
     final env = GridWorld();
-    final agent = SarsaAgent(
+    final agent = SARSA(
       learningRate: 0.1,
       discountFactor: 0.9,
       epsilon: 0.1,
@@ -305,8 +279,8 @@ void compareAlgorithmsExample() {
 
     // Test
     env.reset();
+    agent.epsilon = 0.0; // Greedy policy
     int steps = 0;
-    agent.setEpsilon(0.0); // Greedy policy
     while (!env.isTerminal && steps < 50) {
       final action = agent.selectAction(env, env.currentState);
       final result = env.step(action);
@@ -321,7 +295,7 @@ void compareAlgorithmsExample() {
   double expectedSarsaAvgSteps = 0;
   for (int run = 0; run < runs; run++) {
     final env = GridWorld();
-    final agent = ExpectedSarsaAgent(
+    final agent = ExpectedSARSA(
       learningRate: 0.1,
       discountFactor: 0.9,
       epsilon: 0.1,
@@ -330,8 +304,8 @@ void compareAlgorithmsExample() {
 
     // Test
     env.reset();
+    agent.epsilon = 0.0; // Greedy policy
     int steps = 0;
-    agent.setEpsilon(0.0); // Greedy policy
     while (!env.isTerminal && steps < 50) {
       final action = agent.selectAction(env, env.currentState);
       final result = env.step(action);

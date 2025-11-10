@@ -1,5 +1,5 @@
 name: flutter_rl_demo
-description: A Flutter demo app showing dart_rl in action
+description: A simple Flutter demo app showing dart_rl in action
 publish_to: 'none'
 version: 1.0.0+1
 

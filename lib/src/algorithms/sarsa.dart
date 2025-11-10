@@ -1,20 +1,21 @@
-import 'dart:collection';
 import '../agent.dart';
 import '../environment.dart';
+import '../state.dart';
+import '../action.dart';
 import '../state_action.dart';
 
 /// SARSA algorithm implementation
 ///
 /// SARSA (State-Action-Reward-State-Action) is an on-policy temporal difference
 /// learning algorithm. It learns the action-value function Q for the policy being followed.
-class SarsaAgent extends Agent {
+class SARSA extends DartRlAgent {
   /// Q-table: maps state-action pairs to Q-values
-  final Map<DartRLStateAction, double> _qTable = {};
+  final Map<DartRlStateAction, double> _qTable = {};
 
   /// Default Q-value for unseen state-action pairs
   final double defaultQValue;
 
-  SarsaAgent({
+  SARSA({
     required super.learningRate,
     required super.discountFactor,
     required super.epsilon,
@@ -22,20 +23,20 @@ class SarsaAgent extends Agent {
   });
 
   @override
-  double getQValue(DartRLState state, DartRLAction action) {
-    final key = DartRLStateAction(state, action);
+  double getQValue(DartRlState state, DartRlAction action) {
+    final key = DartRlStateAction(state, action);
     return _qTable[key] ?? defaultQValue;
   }
 
   @override
-  void updateQValue(DartRLState state, DartRLAction action, double value) {
-    final key = DartRLStateAction(state, action);
+  void updateQValue(DartRlState state, DartRlAction action, double value) {
+    final key = DartRlStateAction(state, action);
     _qTable[key] = value;
   }
 
   @override
-  Map<DartRLAction, double> getQValuesForState(DartRLState state) {
-    final qValues = <DartRLAction, double>{};
+  Map<DartRlAction, double> getQValuesForState(DartRlState state) {
+    final qValues = <DartRlAction, double>{};
     for (final entry in _qTable.entries) {
       if (entry.key.state == state) {
         qValues[entry.key.action] = entry.value;
@@ -46,13 +47,13 @@ class SarsaAgent extends Agent {
 
   /// Update Q-value using SARSA update rule
   ///
-  /// Q(s,a) = Q(s,a) + ?[r + ? * Q(s',a') - Q(s,a)]
+  /// Q(s,a) = Q(s,a) + α[r + γ * Q(s',a') - Q(s,a)]
   void update(
-    DartRLState state,
-    DartRLAction action,
+    DartRlState state,
+    DartRlAction action,
     double reward,
-    DartRLState nextState,
-    DartRLAction nextAction,
+    DartRlState nextState,
+    DartRlAction nextAction,
   ) {
     final currentQ = getQValue(state, action);
     final nextQ = getQValue(nextState, nextAction);
@@ -66,19 +67,18 @@ class SarsaAgent extends Agent {
 
   /// Train the agent for one episode
   void trainEpisode(Environment environment) {
-    DartRLState state = environment.reset();
+    DartRlState state = environment.reset();
 
     // Select initial action
-    DartRLAction action = selectAction(environment, state);
+    DartRlAction action = selectAction(environment, state);
 
     while (!environment.isTerminal) {
       // Take step in environment
       final stepResult = environment.step(action);
 
       // Select next action using epsilon-greedy policy
-      DartRLAction nextAction;
-      if (stepResult.isDone ||
-          environment.isStateTerminal(stepResult.nextState)) {
+      DartRlAction nextAction;
+      if (stepResult.isDone || environment.isTerminal) {
         // Terminal state: next action is not used
         nextAction = action; // Dummy action, won't be used
       } else {
@@ -111,8 +111,5 @@ class SarsaAgent extends Agent {
   }
 
   /// Get a copy of the Q-table
-  Map<DartRLStateAction, double> get qTable => UnmodifiableMapView(_qTable);
-
-  /// Get the number of state-action pairs in the Q-table
-  int get qTableSize => _qTable.length;
+  Map<DartRlStateAction, double> get qTable => Map.from(_qTable);
 }

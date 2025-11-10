@@ -1,8 +1,9 @@
-import 'state_action.dart';
+import 'state.dart';
+import 'action.dart';
 
 /// Represents the result of taking an action in an environment
 class StepResult {
-  final DartRLState nextState;
+  final DartRlState nextState;
   final double reward;
   final bool isDone;
 
@@ -11,38 +12,22 @@ class StepResult {
     required this.reward,
     required this.isDone,
   });
-
-  @override
-  String toString() =>
-      'StepResult(nextState: $nextState, reward: $reward, isDone: $isDone)';
 }
 
 /// Interface for reinforcement learning environments
 abstract class Environment {
   /// Reset the environment to its initial state
-  DartRLState reset();
+  DartRlState reset();
 
   /// Get the current state of the environment
-  DartRLState get currentState;
+  DartRlState get currentState;
 
   /// Get all possible actions for the current state
-  List<DartRLAction> get availableActions;
-
-  /// Get all possible actions for a given state
-  List<DartRLAction> getActionsForState(DartRLState state);
-
-  /// Get all possible states in the environment
-  List<DartRLState> get allStates;
-
-  /// Get all possible actions in the environment
-  List<DartRLAction> get allActions;
+  List<DartRlAction> getActionsForState(DartRlState state);
 
   /// Take a step in the environment with the given action
-  StepResult step(DartRLAction action);
+  StepResult step(DartRlAction action);
 
   /// Check if the current state is terminal
   bool get isTerminal;
-
-  /// Check if a given state is terminal
-  bool isStateTerminal(DartRLState state);
 }

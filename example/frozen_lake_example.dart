@@ -11,7 +11,7 @@ import 'package:dart_rl/dart_rl.dart';
 /// - 'G' = Goal (reward +10)
 class FrozenLake implements Environment {
   final List<List<String>> grid;
-  late DartRLState _currentState;
+  late DartRlState _currentState;
   final Random random = Random();
 
   FrozenLake({
@@ -29,11 +29,11 @@ class FrozenLake implements Environment {
     ];
   }
 
-  DartRLState _createState(int row, int col) => DartRLState(Point(row, col));
+  DartRlState _createState(int row, int col) => DartRlState(Point(row, col));
 
-  Point<int> _getStateValue(DartRLState state) => state.value as Point<int>;
+  Point<int> _getStateValue(DartRlState state) => state.value as Point<int>;
 
-  DartRLState _findStartState() {
+  DartRlState _findStartState() {
     for (int i = 0; i < grid.length; i++) {
       for (int j = 0; j < grid[i].length; j++) {
         if (grid[i][j] == 'S') {
@@ -45,45 +45,23 @@ class FrozenLake implements Environment {
   }
 
   @override
-  DartRLState reset() {
+  DartRlState reset() {
     _currentState = _findStartState();
     return _currentState;
   }
 
   @override
-  DartRLState get currentState => _currentState;
+  DartRlState get currentState => _currentState;
 
   @override
-  List<DartRLAction> get availableActions => getActionsForState(_currentState);
-
-  @override
-  List<DartRLAction> getActionsForState(DartRLState state) {
+  List<DartRlAction> getActionsForState(DartRlState state) {
     return [
-      DartRLAction('up'),
-      DartRLAction('down'),
-      DartRLAction('left'),
-      DartRLAction('right'),
+      DartRlAction('up'),
+      DartRlAction('down'),
+      DartRlAction('left'),
+      DartRlAction('right'),
     ];
   }
-
-  @override
-  List<DartRLState> get allStates {
-    final states = <DartRLState>[];
-    for (int i = 0; i < grid.length; i++) {
-      for (int j = 0; j < grid[i].length; j++) {
-        states.add(_createState(i, j));
-      }
-    }
-    return states;
-  }
-
-  @override
-  List<DartRLAction> get allActions => [
-        DartRLAction('up'),
-        DartRLAction('down'),
-        DartRLAction('left'),
-        DartRLAction('right'),
-      ];
 
   String _getCell(int row, int col) {
     if (row < 0 || row >= grid.length || col < 0 || col >= grid[row].length) {
@@ -93,7 +71,7 @@ class FrozenLake implements Environment {
   }
 
   @override
-  StepResult step(DartRLAction action) {
+  StepResult step(DartRlAction action) {
     final pos = _getStateValue(_currentState);
     final actionStr = action.value as String;
 
@@ -139,11 +117,8 @@ class FrozenLake implements Environment {
   }
 
   @override
-  bool get isTerminal => isStateTerminal(_currentState);
-
-  @override
-  bool isStateTerminal(DartRLState state) {
-    final pos = _getStateValue(state);
+  bool get isTerminal {
+    final pos = _getStateValue(_currentState);
     final cell = _getCell(pos.x, pos.y);
     return cell == 'H' || cell == 'G';
   }
@@ -168,7 +143,7 @@ void main() {
   print('=== Frozen Lake with Expected-SARSA ===\n');
 
   final environment = FrozenLake();
-  final agent = ExpectedSarsaAgent(
+  final agent = ExpectedSARSA(
     learningRate: 0.1,
     discountFactor: 0.95,
     epsilon: 0.2,
@@ -177,11 +152,11 @@ void main() {
   print('Training Expected-SARSA agent for 2000 episodes...');
   agent.train(environment, 2000);
 
-  print('\nQ-Table size: ${agent.qTableSize}');
+  print('\nQ-Table size: ${agent.qTable.length}');
 
   print('\nTesting learned policy...');
   environment.reset();
-  agent.setEpsilon(0.0); // Greedy policy
+  agent.epsilon = 0.0; // Greedy policy
 
   int steps = 0;
   double totalReward = 0;
