@@ -1,7 +1,9 @@
 /// Represents an action that can be taken in the environment
 class DartRlAction {
+  /// The value of this action
   final dynamic value;
 
+  /// Creates a new [DartRlAction] with the given [value]
   const DartRlAction(this.value);
 
   @override

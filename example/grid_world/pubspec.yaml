@@ -1,0 +1,11 @@
+name: grid_world_example
+description: Example demonstrating Q-Learning, SARSA, and Expected-SARSA on a grid world
+publish_to: 'none'
+version: 1.0.0
+
+environment:
+  sdk: '>=2.17.0 <4.0.0'
+
+dependencies:
+  dart_rl:
+    path: ../../

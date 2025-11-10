@@ -1,0 +1,11 @@
+name: frozen_lake_example
+description: Example demonstrating Expected-SARSA on the Frozen Lake environment
+publish_to: 'none'
+version: 1.0.0
+
+environment:
+  sdk: '>=2.17.0 <4.0.0'
+
+dependencies:
+  dart_rl:
+    path: ../../

@@ -17,6 +17,11 @@ abstract class DartRlAgent {
   /// Random number generator
   final Random random = Random();
 
+  /// Creates a new [DartRlAgent] with the given parameters
+  ///
+  /// - [learningRate]: The learning rate (alpha) used in Q-value updates
+  /// - [discountFactor]: The discount factor (gamma) for future rewards
+  /// - [epsilon]: The exploration rate for epsilon-greedy action selection
   DartRlAgent({
     required this.learningRate,
     required this.discountFactor,
