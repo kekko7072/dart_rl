@@ -1,6 +1,6 @@
 name: dart_rl
 description: A Dart package implementing reinforcement learning algorithms (SARSA, Q-Learning, Expected-SARSA) for both Dart and Flutter applications.
-version: 0.1.0-alpha.1
+version: 0.1.0-alpha.2
 homepage: https://github.com/kekko7072/dart_rl
 
 environment:

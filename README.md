@@ -8,11 +8,13 @@ A Dart package implementing reinforcement learning algorithms (SARSA, Q-Learning
 - **SARSA**: On-policy temporal difference learning algorithm  
 - **Expected-SARSA**: On-policy algorithm using expected Q-values
 - Clean, extensible API for implementing custom environments
-- Epsilon-greedy exploration strategy
+- Epsilon-greedy exploration strategy with configurable decay schedules
 - Support for both discrete state and action spaces
 - **Flutter Integration**: Stream-based training and ChangeNotifier wrappers for reactive UI updates
 - **Real-time Visualization**: Built-in support for visualizing training progress in Flutter apps
-- **Training Statistics**: Track and display training metrics in real-time
+- **Training Statistics**: Track and display training metrics in real-time with episode-level and aggregated statistics
+- **Model Persistence**: Save and load trained Q-tables to/from disk
+- **Multiple Decay Schedules**: Linear, Exponential, Polynomial, Step, and Cosine Annealing schedules for epsilon decay
 
 ## Installation
 
@@ -20,7 +22,7 @@ Add `dart_rl` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  dart_rl: ^0.1.0
+  dart_rl: ^0.1.0-alpha.2
 ```
 
 Then run:
@@ -41,9 +43,9 @@ final environment = GridWorld();
 
 // Create a Q-Learning agent
 final agent = QLearningAgent(
-  learningRate: 0.1,      // ? (alpha)
-  discountFactor: 0.9,    // ? (gamma)
-  epsilon: 0.1,           // ? (epsilon) for exploration
+  learningRate: 0.1,      // α (alpha)
+  discountFactor: 0.9,    // γ (gamma)
+  epsilon: 0.1,           // ε (epsilon) for exploration
 );
 
 // Train the agent
@@ -62,25 +64,25 @@ To use `dart_rl` with your own environment, implement the `Environment` interfac
 ```dart
 class MyEnvironment implements Environment {
   @override
-  State reset() {
+  DartRLState reset() {
     // Reset to initial state
-    return State(initialValue);
+    return DartRLState(initialValue);
   }
 
   @override
-  State get currentState => /* current state */;
+  DartRLState get currentState => /* current state */;
 
   @override
-  List<Action> getActionsForState(State state) {
+  List<DartRLAction> getActionsForState(DartRLState state) {
     // Return available actions for the given state
-    return [Action('action1'), Action('action2')];
+    return [DartRLAction('action1'), DartRLAction('action2')];
   }
 
   @override
-  StepResult step(Action action) {
+  StepResult step(DartRLAction action) {
     // Execute action and return result
     return StepResult(
-      nextState: State(newValue),
+      nextState: DartRLState(newValue),
       reward: rewardValue,
       isDone: isTerminal,
     );
@@ -147,12 +149,19 @@ agent.setEpsilon(0.0);
 
 ```dart
 // Get Q-value for a specific state-action pair
-final qValue = agent.getQValue(state, action);
+final qValue = agent.getQValue(DartRLState(stateValue), DartRLAction(actionValue));
 
 // Get all Q-values for a state
+final state = DartRLState(stateValue);
 final qValues = agent.getQValuesForState(state);
 for (final entry in qValues.entries) {
   print('${entry.key}: ${entry.value}');
+}
+
+// Access Q-table directly (for QLearningAgent, SarsaAgent, ExpectedSarsaAgent)
+if (agent is QLearningAgent) {
+  final qTable = (agent as QLearningAgent).qTable;
+  print('Q-table size: ${(agent as QLearningAgent).qTableSize}');
 }
 ```
 
@@ -316,15 +325,35 @@ flutter run
 Control how epsilon (exploration rate) decreases over time using decay schedules:
 
 ```dart
-// Linear decay: decreases linearly from 1.0 to 0.01 over 1000 episodes
+// Linear decay: decreases linearly from initial value to minValue over totalSteps
 final linearSchedule = LinearDecaySchedule(
   totalSteps: 1000,
   minValue: 0.01,
 );
 
-// Exponential decay: decreases exponentially
+// Exponential decay: decreases exponentially using decayRate
 final expSchedule = ExponentialDecaySchedule(
   decayRate: 0.995,
+  minValue: 0.01,
+);
+
+// Polynomial decay: decreases polynomially with configurable power
+final polySchedule = PolynomialDecaySchedule(
+  totalSteps: 1000,
+  power: 2.0,  // Higher power = faster initial decay
+  minValue: 0.01,
+);
+
+// Step decay: decreases by decayFactor every stepSize steps
+final stepSchedule = StepDecaySchedule(
+  stepSize: 100,      // Decay every 100 steps
+  decayFactor: 0.9,   // Multiply by 0.9 each time
+  minValue: 0.01,
+);
+
+// Cosine annealing: decreases following a cosine curve
+final cosineSchedule = CosineAnnealingSchedule(
+  totalSteps: 1000,
   minValue: 0.01,
 );
 
@@ -361,7 +390,13 @@ Aggregate statistics over multiple episodes:
 final aggregated = AggregatedStats(episodes: allStats);
 print('Average Reward: ${aggregated.averageReward}');
 print('Best Reward: ${aggregated.bestReward}');
+print('Worst Reward: ${aggregated.worstReward}');
 print('Average Steps: ${aggregated.averageSteps}');
+print('Reward Std Dev: ${aggregated.rewardStdDev}');
+
+// Get statistics for specific episode ranges
+final recentStats = aggregated.lastN(100);  // Last 100 episodes
+final windowStats = aggregated.window(50, 150);  // Episodes 50-150
 ```
 
 ### Saving and Loading Q-Tables
@@ -372,13 +407,30 @@ Save trained agents to disk and load them later:
 import 'package:dart_rl/dart_rl.dart';
 
 // Save Q-table
-final agent = QLearningAgent(...);
+final agent = QLearningAgent(
+  learningRate: 0.1,
+  discountFactor: 0.9,
+  epsilon: 0.1,
+);
 agent.train(environment, episodes: 1000);
 await QTableSerializer.saveToFile('qtable.json', agent.qTable);
 
 // Load Q-table
 final loadedQTable = await QTableSerializer.loadFromFile('qtable.json');
+
 // Reconstruct agent with loaded Q-table
+final newAgent = QLearningAgent(
+  learningRate: 0.1,
+  discountFactor: 0.9,
+  epsilon: 0.1,
+);
+// Manually populate Q-table (requires access to private _qTable)
+// For custom state/action types, provide deserializers:
+final customQTable = await QTableSerializer.loadFromFile(
+  'qtable.json',
+  stateDeserializer: (v) => DartRLState(/* custom deserialization */),
+  actionDeserializer: (v) => DartRLAction(/* custom deserialization */),
+);
 ```
 
 ## Examples
@@ -419,24 +471,66 @@ flutter run
 
 ### Q-Learning
 - **Type**: Off-policy
-- **Update Rule**: `Q(s,a) = Q(s,a) + ?[r + ? * max(Q(s',a')) - Q(s,a)]`
+- **Update Rule**: `Q(s,a) = Q(s,a) + α[r + γ * max(Q(s',a')) - Q(s,a)]`
 - Learns the optimal policy regardless of the policy being followed
 
 ### SARSA
 - **Type**: On-policy
-- **Update Rule**: `Q(s,a) = Q(s,a) + ?[r + ? * Q(s',a') - Q(s,a)]`
+- **Update Rule**: `Q(s,a) = Q(s,a) + α[r + γ * Q(s',a') - Q(s,a)]`
 - Learns the value of the policy being followed
 
 ### Expected-SARSA
 - **Type**: On-policy
-- **Update Rule**: `Q(s,a) = Q(s,a) + ?[r + ? * E[Q(s',a')] - Q(s,a)]`
+- **Update Rule**: `Q(s,a) = Q(s,a) + α[r + γ * E[Q(s',a')] - Q(s,a)]`
 - Uses expected Q-value over next actions, reducing variance compared to SARSA
 
 ## Parameters
 
-- **learningRate (?)**: Controls how much new information overrides old information (0.0 to 1.0)
-- **discountFactor (?)**: Discount factor for future rewards (0.0 to 1.0)
-- **epsilon (?)**: Probability of exploration vs exploitation (0.0 to 1.0)
+- **learningRate (α)**: Controls how much new information overrides old information (0.0 to 1.0)
+- **discountFactor (γ)**: Discount factor for future rewards (0.0 to 1.0)
+- **epsilon (ε)**: Probability of exploration vs exploitation (0.0 to 1.0)
+
+## API Reference
+
+### Core Classes
+
+- **`Agent`**: Base class for all RL agents with epsilon-greedy exploration
+- **`QLearningAgent`**: Off-policy Q-Learning implementation
+- **`SarsaAgent`**: On-policy SARSA implementation
+- **`ExpectedSarsaAgent`**: On-policy Expected-SARSA implementation
+- **`Environment`**: Interface for implementing custom RL environments
+- **`DartRLState`**: Represents a state in the environment
+- **`DartRLAction`**: Represents an action that can be taken
+- **`DartRLStateAction`**: Represents a state-action pair
+- **`StepResult`**: Result of taking an action in the environment
+
+### Flutter Integration
+
+- **`AgentStreamExtension`**: Extension method adding `trainStream()` for reactive UI updates
+- **`AgentNotifier`**: ChangeNotifier wrapper for Flutter state management (Provider, Riverpod, etc.)
+
+### Utilities
+
+- **`TrainingStats`**: Episode-level training statistics
+- **`AggregatedStats`**: Aggregated statistics across multiple episodes
+- **`DecaySchedule`**: Base class for epsilon decay schedules
+  - `LinearDecaySchedule`: Linear decay over time
+  - `ExponentialDecaySchedule`: Exponential decay
+  - `PolynomialDecaySchedule`: Polynomial decay with configurable power
+  - `StepDecaySchedule`: Step-wise decay at regular intervals
+  - `CosineAnnealingSchedule`: Cosine annealing decay
+- **`QTableSerializer`**: Utilities for saving/loading Q-tables to/from disk
+
+## Requirements
+
+- Dart SDK: `>=2.17.0 <4.0.0`
+- Flutter SDK (for Flutter integration features)
+
+## Dependencies
+
+- `collection: ^1.17.0` - Enhanced data structures
+- `equatable: ^2.0.5` - Value equality for state and action classes
+- `flutter` (SDK) - For Flutter-specific features
 
 ## License
 
@@ -445,4 +539,8 @@ MIT
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-# dart_rl
+
+## Links
+
+- **Homepage**: https://github.com/kekko7072/dart_rl
+- **Version**: 0.1.0-alpha.2
